@@ -1,0 +1,173 @@
+addin the data into the database
+
+App.js
+
+import React,{useState,useEffect} from 'react';
+import './App.css';
+import Axios from "axios";
+
+function App() {
+  const [movieName,setMovieName] = useState("");
+  const [review, setReview] = useState("");
+
+  const submitReview = () =>{
+    Axios.post("http://localhost:3001/api/insert",{
+      movieName:movieName,
+      movieReview:review,
+    }).then(()=>{
+      alert("successful insert")
+      setMovieName("");
+      setReview("");
+
+    })
+  }
+
+  return (
+    <div className='App'>
+      <h1>CRUD APPLICATION</h1>
+      <div className='form'>
+        <label>Movie Name:</label>
+        <input
+        type="text"
+        name="movieName"
+        onChange={(e)=>{
+          setMovieName(e.target.value);
+        }}
+        ></input>
+        <label>Last Name:</label>
+        <input
+        type="text"
+        name="review"
+        onChange={(e)=>{
+          setReview(e.target.value);
+        }}
+        ></input>
+        <button onClick={submitReview}>Submit</button>
+      </div>
+    </div>
+  )
+  }
+export default App;
+
+
+
+
+
+index.js
+// const express = require('express');
+// const app = express();
+// const bodyParser = require("body-parser");
+// const mysql = require("mysql2")
+// const cors =require("cors");
+
+// const db = mysql.createPool({
+//     host: "qualcommbackenddbstage.cxiqoa7uqghb.ap-south-1.rds.amazonaws.com",
+//     user: "admin",
+//     password: "fCkfGbHJE7jo",
+//     database : "mergedb"
+// })
+
+// app.use(cors());
+// app.use(express.json());
+// app.use(bodyParser.urlencoded({extended:true}));
+
+// app.get('/api/get', (req, res) => {
+//     const sql = "SELECT * FROM users";
+//     db.query(sql,(error,result) =>{
+//         console.log("error", error);
+//         console.log("result",result);
+//         res.send(result);
+
+//     });
+//   });
+
+// app.get('/', (req, res) => {
+//     const sql = "SELECT COUNT(*) as total_users FROM users";
+//     db.query(sql,(error,result) =>{
+//         console.log("error", error);
+//         console.log("result",result);
+//         res.send(result);
+
+//     });
+//   });
+
+//   app.listen(5000, () => {
+//     console.log('Server listening on port 5000');
+//   });
+    
+// const express = require('express');
+// const app = express();
+
+// app.get('/totalusers', (req, res) => {
+//   const name = req.query.name;
+//   res.send(`Hello ${name}!`);
+// });
+
+// app.listen(4000, () => {
+//   console.log('Server started on port 4000');
+// });
+
+const express = require('express');
+const app = express();
+const port = 3001;
+const bodyParser = require("body-parser");
+const mysql = require("mysql2")
+const cors = require("cors");
+
+//Database connection
+const db = mysql.createPool({
+  host: "qualcommbackenddbstage.cxiqoa7uqghb.ap-south-1.rds.amazonaws.com",
+  user: "admin",
+  password: "fCkfGbHJE7jo",
+  database : "CRUDDataBase"
+})
+
+// Define the endpoint to serve the data
+app.use(cors());
+app.use(express.json());
+app.use(bodyParser.urlencoded({extended: true}));
+
+app.post("/api/insert",(req,res)=>{
+  const movieName = req.body.movieName;
+  const movieReview = req.body.movieReview;
+
+  const sqlInsert = 
+  "INSERT INTO movie_reviews (movieName,movieReview) VALUES (?,?)";
+  db.query(sqlInsert,[movieName,movieReview],(err,result)=>{
+    console.log(err);
+    console.log("data insert sucessfully")
+  })
+})
+
+app.get("/api/get",(req,res)=>{
+  const sqlGet = "SELECT * FROM movie_reviews";
+ db.query(sqlGet,(error,result)=>{
+    console.log("error",error);
+    res.send(result);
+  })
+})
+
+// app.post("/api/post",(req,res)=>{
+//   const {name,email,contact} = req.body;
+//   const sqlInsert = "INSERT INTO contact_db (name, email, contact) VALUES(%s,%s,%s)";
+//   db.query(sqlInsert,[name,email,contact],(error,result)=>{
+//     if(error){
+//       console.log(error);
+//     }
+//   })
+// })
+
+
+app.get('/',(req,res)=>{
+  const sqlInsert = "INSERT INTO contact_db (name, email, contact) VALUES ('abhishek' , 'abhishek@gmail.com', 7017906345)";
+  db.query(sqlInsert, (err,result) => {
+    console.log("error", err);
+    console.log("result", result);
+    res.send("Data inserted again")
+  })
+ 
+})
+
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
+});
